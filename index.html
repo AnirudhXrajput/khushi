@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FAF8F3">
+  <meta name="description" content="A small note for Khushi.">
+  <title>A Small Note for Khushi</title>
+  <!-- Tiny leaf favicon, drawn inline so there are no external files -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 20C4 10.5 10.5 4 20 4c0 9.5-6.5 16-16 16z' fill='%235F6B3E'/%3E%3C/svg%3E">
+
+  <style>
+    /* =========================================================
+       1. DESIGN TOKENS
+       Colours, fonts, shadows and easing used across the page.
+       ========================================================= */
+    :root {
+      --sage: #A9B89E;
+      --sage-soft: #E1E8D9;
+      --sage-mist: #EEF2E8;
+      --olive: #5F6B3E;
+      --olive-deep: #4A5430;
+      --offwhite: #FAF8F3;
+      --beige: #F1EADC;
+      --card: #FFFDF9;
+      --charcoal: #2E322F;
+      --muted: #585E56;
+      --gold: #C4AE78;
+
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --shadow-soft: 0 1px 2px rgba(46, 50, 47, .04), 0 10px 30px rgba(46, 50, 47, .07);
+      --shadow-lift: 0 2px 4px rgba(46, 50, 47, .05), 0 16px 40px rgba(46, 50, 47, .10);
+
+      --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      --ease-out: cubic-bezier(.22, .61, .36, 1);
+    }
+
+    /* =========================================================
+       2. BASE / RESET
+       ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: var(--font-sans);
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: var(--charcoal);
+      background-color: var(--offwhite);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Soft colour wash behind everything */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(60vmax 60vmax at 0% 0%, rgba(169, 184, 158, .28), transparent 60%),
+        radial-gradient(55vmax 55vmax at 100% 100%, rgba(241, 234, 220, .95), transparent 60%),
+        radial-gradient(40vmax 40vmax at 100% 10%, rgba(225, 232, 217, .6), transparent 60%);
+    }
+
+    p { margin: 0 0 1em; }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Clear, visible keyboard focus everywhere */
+    :focus-visible {
+      outline: 3px solid var(--olive);
+      outline-offset: 3px;
+    }
+
+    /* =========================================================
+       3. DECORATIVE BACKGROUND (floating leaves + tiny stars)
+       ========================================================= */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .bg-leaf {
+      position: absolute;
+      width: var(--s, 24px);
+      height: var(--s, 24px);
+      color: var(--c, var(--sage));
+      opacity: var(--o, .5);
+      animation: drift var(--d, 18s) ease-in-out var(--delay, 0s) infinite alternate;
+      will-change: transform;
+    }
+
+    @keyframes drift {
+      0%   { transform: translate(0, 0) rotate(var(--r, 0deg)); }
+      50%  { transform: translate(14px, -22px) rotate(calc(var(--r, 0deg) + 18deg)); }
+      100% { transform: translate(-10px, 12px) rotate(calc(var(--r, 0deg) - 10deg)); }
+    }
+
+    .bg-star {
+      position: absolute;
+      font-size: var(--s, 12px);
+      line-height: 1;
+      color: var(--gold);
+      animation: twinkle var(--d, 4s) ease-in-out var(--delay, 0s) infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: .15; transform: scale(.8); }
+      50%      { opacity: .75; transform: scale(1.1); }
+    }
+
+    /* Layer for the little sparkle burst on the final button */
+    .spark-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .spark {
+      position: absolute;
+      font-size: 14px;
+      line-height: 1;
+      transform: translate(-50%, -50%);
+      animation: sparkFly 1s var(--ease-out) forwards;
+    }
+
+    .spark--leaf {
+      width: 10px;
+      height: 10px;
+      background: currentColor;
+      border-radius: 0 70% 0 70%;
+    }
+
+    @keyframes sparkFly {
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
+      15%  { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(1);
+      }
+    }
+
+    /* =========================================================
+       4. LAYOUT
+       ========================================================= */
+    .page {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: clamp(40px, 9vh, 88px) 16px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(28px, 6vw, 44px);
+    }
+
+    @media (min-width: 480px) {
+      .page { padding-left: 24px; padding-right: 24px; }
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid rgba(95, 107, 62, .12);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: clamp(26px, 6vw, 44px);
+    }
+
+    /* =========================================================
+       5. TYPOGRAPHY + SMALL ACCENTS
+       ========================================================= */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--olive);
+      background: var(--sage-mist);
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-family: var(--font-serif);
+      font-weight: 600;
+      font-size: clamp(2rem, 7vw, 2.75rem);
+      line-height: 1.15;
+      letter-spacing: -.01em;
+      margin: 0;
+    }
+
+    .title:focus { outline: none; }
+
+    /* Hand-drawn-style squiggle under the main heading */
+    .squiggle {
+      display: block;
+      width: min(220px, 60%);
+      height: 14px;
+      margin: 10px 0 22px;
+      overflow: visible;
+    }
+
+    .squiggle path {
+      fill: none;
+      stroke: var(--sage);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: draw 1.4s .5s var(--ease-out) forwards;
+    }
+
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    .lead {
+      font-size: 1.125rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .corner-leaf {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 34px;
+      height: 34px;
+      color: var(--sage);
+      opacity: .7;
+      transform: rotate(10deg);
+    }
+
+    /* =========================================================
+       6. BUTTONS
+       ========================================================= */
+    .btn {
+      appearance: none;
+      border: 0;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5em;
+      min-height: 48px;
+      padding: 14px 26px;
+      border-radius: 999px;
+      background: var(--olive);
+      color: var(--offwhite);
+      box-shadow: 0 6px 16px rgba(74, 84, 48, .22);
+      cursor: pointer;
+      transition: transform .2s var(--ease-out), background-color .2s, box-shadow .2s;
+    }
+
+    .btn:hover {
+      background: var(--olive-deep);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(74, 84, 48, .26);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--olive);
+      box-shadow: inset 0 0 0 1.5px rgba(95, 107, 62, .45);
+    }
+
+    .btn--ghost:hover {
+      background: var(--sage-soft);
+      box-shadow: inset 0 0 0 1.5px var(--olive);
+    }
+
+    .btn--small {
+      min-height: 44px;
+      padding: 10px 20px;
+      font-size: .95rem;
+    }
+
+    /* =========================================================
+       7. NOTES SECTION
+       ========================================================= */
+    .notes-section {
+      display: flex;
+      flex-direction: column;
+      scroll-margin-top: 24px;
+    }
+
+    .section-head { text-align: center; }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 5vw, 1.9rem);
+      font-weight: 600;
+      line-height: 1.25;
+      margin: 0 0 4px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Progress pill – stays visible while scrolling through the notes */
+    .progress {
+      position: sticky;
+      top: 12px;
+      z-index: 5;
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px auto 22px;
+      padding: 8px 16px;
+      font-size: .9rem;
+      color: var(--muted);
+      background: rgba(255, 253, 249, .88);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(95, 107, 62, .14);
+      border-radius: 999px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dots { display: flex; gap: 7px; }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(95, 107, 62, .18);
+      transition: background-color .3s, transform .3s, box-shadow .3s;
+    }
+
+    .dot.is-current { box-shadow: 0 0 0 2px var(--card), 0 0 0 3.5px var(--sage); }
+    .dot.is-done { background: var(--olive); transform: scale(1.1); }
+
+    .note-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .note { scroll-margin: 90px 0 24px; }
+
+    /* --- Sealed (unopened) note --- */
+    .note-seal {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 22px;
+      text-align: left;
+      font: inherit;
+      color: var(--charcoal);
+      background: linear-gradient(135deg, var(--beige) 0%, #F7F2E7 100%);
+      border: 1.5px dashed rgba(95, 107, 62, .38);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: transform .25s var(--ease-out), box-shadow .25s, border-color .25s;
+    }
+
+    .note-seal:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lift);
+      border-color: var(--olive);
+    }
+
+    .seal-icon {
+      flex: none;
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--card);
+      color: var(--olive);
+      box-shadow: 0 2px 8px rgba(46, 50, 47, .08);
+    }
+
+    .seal-icon svg { width: 22px; height: 22px; }
+
+    /* Gentle "breathing" on the note that's waiting to be opened */
+    .note-seal:not(:disabled) .seal-icon {
+      animation: breathe 2.6s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
+    }
+
+    .seal-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.35;
+    }
+
+    .note-label {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--olive);
+    }
+
+    .seal-hint {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+    }
+
+    .seal-arrow {
+      margin-left: auto;
+      font-size: 1.25rem;
+      color: var(--olive);
+      transition: transform .25s var(--ease-out);
+    }
+
+    .note-seal:hover .seal-arrow { transform: translateX(3px); }
+
+    .note-seal.fold-out { animation: foldOut .26s ease-in forwards; }
+
+    @keyframes foldOut {
+      to { opacity: 0; transform: scale(.97); }
+    }
+
+    /* --- Opened note --- */
+    .note-body {
+      position: relative;
+      padding: clamp(22px, 5vw, 32px);
+      padding-left: calc(clamp(22px, 5vw, 32px) + 6px);
+      background: var(--card);
+      border: 1px solid rgba(95, 107, 62, .12);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+
+    /* Sage accent strip on the left of each opened note */
+    .note-body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 5px;
+      background: linear-gradient(var(--sage), var(--olive));
+    }
+
+    .note-body h3 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.3rem, 4.5vw, 1.55rem);
+      font-weight: 600;
+      line-height: 1.25;
+      margin: 6px 0 12px;
+    }
+
+    .note-body h3:focus { outline: none; }
+
+    .note-body p {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .note-body.unfold {
+      transform-origin: top center;
+      animation: unfold .55s var(--ease-out) both;
+    }
+
+    @keyframes unfold {
+      from { opacity: 0; transform: perspective(900px) rotateX(-8deg) translateY(10px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .next-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 22px;
+      scroll-margin-bottom: 32px;
+    }
+
+    /* =========================================================
+       8. FINAL SECTION
+       ========================================================= */
+    .final {
+      text-align: center;
+      scroll-margin-top: 24px;
+    }
+
+    .final .title { font-size: clamp(1.7rem, 6vw, 2.25rem); }
+
+    .final .lead {
+      max-width: 46ch;
+      margin: 18px auto 28px;
+    }
+
+    .final-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .smile-result {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .smile-result.is-shown { animation: popIn .5s var(--ease-out) both; }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.85) translateY(6px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .smile-msg {
+      margin: 0;
+      font-weight: 600;
+      color: var(--olive-deep);
+    }
+
+    .smile-msg:empty { display: none; }
+
+    /* Little smiley whose mouth draws itself */
+    .smiley { width: 52px; height: 52px; flex: none; }
+    .smiley-face { fill: var(--sage-soft); stroke: var(--olive); stroke-width: 2; }
+    .smiley-eye { fill: var(--charcoal); }
+
+    .smiley-mouth {
+      fill: none;
+      stroke: var(--charcoal);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+    }
+
+    .smile-result.is-shown .smiley-mouth {
+      animation: draw .7s .25s var(--ease-out) forwards;
+    }
+
+    .replay-row {
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px dashed rgba(95, 107, 62, .25);
+    }
+
+    /* =========================================================
+       9. FOOTER, NOSCRIPT, GENERIC REVEAL
+       ========================================================= */
+    .footer {
+      text-align: center;
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    .noscript {
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .intro { animation: riseIn .8s var(--ease-out) both; }
+    .reveal { animation: riseIn .7s var(--ease-out) both; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* =========================================================
+       10. REDUCED MOTION – respect the visitor's system setting
+       ========================================================= */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Reusable leaf shape (used by the background, icons and corner accent) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="leaf" viewBox="0 0 24 24">
+      <path d="M4 20C4 10.5 10.5 4 20 4c0 9.5-6.5 16-16 16z" fill="currentColor"/>
+      <path d="M4.8 19.2L14 10" stroke="rgba(255,255,255,.6)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+    </symbol>
+  </svg>
+
+  <!-- Decorative background: drifting leaves and twinkling stars -->
+  <div class="bg-decor" aria-hidden="true">
+    <svg class="bg-leaf" style="top:7%;left:5%;--s:30px;--r:-25deg;--d:19s;"><use href="#leaf"/></svg>
+    <svg class="bg-leaf" style="top:14%;right:7%;--s:22px;--c:#8FA27E;--r:40deg;--d:23s;--delay:-6s;"><use href="#leaf"/></svg>
+    <svg class="bg-leaf" style="top:44%;left:2%;--s:18px;--c:var(--olive);--o:.3;--r:15deg;--d:17s;--delay:-3s;"><use href="#leaf"/></svg>
+    <svg class="bg-leaf" style="top:58%;right:3%;--s:34px;--r:-60deg;--d:25s;--delay:-9s;"><use href="#leaf"/></svg>
+    <svg class="bg-leaf" style="bottom:12%;left:8%;--s:24px;--c:#8FA27E;--r:70deg;--d:21s;--delay:-12s;"><use href="#leaf"/></svg>
+    <svg class="bg-leaf" style="bottom:5%;right:12%;--s:20px;--c:var(--olive);--o:.3;--r:-10deg;--d:18s;--delay:-4s;"><use href="#leaf"/></svg>
+
+    <span class="bg-star" style="top:22%;left:14%;--s:12px;--d:4.5s;">✦</span>
+    <span class="bg-star" style="top:9%;right:24%;--s:10px;--d:5.5s;--delay:-2s;">✦</span>
+    <span class="bg-star" style="top:72%;left:6%;--s:11px;--d:5s;--delay:-1s;">✦</span>
+    <span class="bg-star" style="top:80%;right:8%;--s:13px;--d:6s;--delay:-3s;">✦</span>
+  </div>
+
+  <!-- Sparkle burst layer (filled by JavaScript) -->
+  <div class="spark-layer" id="sparkLayer" aria-hidden="true"></div>
+
+  <main class="page">
+
+    <!-- ============ OPENING SCREEN ============ -->
+    <section class="card intro" aria-labelledby="introTitle">
+      <svg class="corner-leaf" aria-hidden="true" focusable="false"><use href="#leaf"/></svg>
+
+      <span class="eyebrow">A tiny page · 1 min</span>
+      <h1 class="title" id="introTitle">A Small Note for Khushi 🌿</h1>
+
+      <svg class="squiggle" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path pathLength="1" d="M2 7 C 20 1, 35 11, 52 6 S 85 1, 102 6 S 135 11, 152 6 S 185 1, 198 6"/>
+      </svg>
+
+      <p class="lead">
+        Hey Khushi! I wanted to say something properly, so I made this tiny little page.
+        Nothing serious or dramatic — just a few words from me.
+      </p>
+
+      <button class="btn" id="startBtn" type="button">Okay, let’s see 👀</button>
+    </section>
+
+    <noscript>
+      <p class="noscript">This little page needs JavaScript switched on to open the notes.</p>
+    </noscript>
+
+    <!-- ============ INTERACTIVE NOTES ============ -->
+    <section class="notes-section" id="notes" aria-labelledby="notesTitle" hidden>
+      <header class="section-head">
+        <h2 class="section-title" id="notesTitle">A few little notes</h2>
+        <p class="section-sub">Open them one at a time. They’re short, I promise.</p>
+      </header>
+
+      <!-- Progress indicator -->
+      <div class="progress">
+        <div class="dots" aria-hidden="true">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <span id="progressText" aria-live="polite">0 of 4 notes opened</span>
+      </div>
+
+      <div class="note-list">
+
+        <!-- Note 1 -->
+        <article class="note" hidden>
+          <button class="note-seal" type="button">
+            <span class="seal-icon" aria-hidden="true"><svg><use href="#leaf"/></svg></span>
+            <span class="seal-text">
+              <span class="note-label">Note 1 of 4</span>
+              <span class="seal-hint">Tap to open 🍃</span>
+            </span>
+            <span class="seal-arrow" aria-hidden="true">→</span>
+          </button>
+          <div class="note-body" hidden>
+            <span class="note-label">Note 1 of 4</span>
+            <h3 tabindex="-1">First, a little honesty…</h3>
+            <p>I know things have been awkward between us, and I wanted to acknowledge that instead of pretending everything is normal.</p>
+          </div>
+        </article>
+
+        <!-- Note 2 -->
+        <article class="note" hidden>
+          <button class="note-seal" type="button">
+            <span class="seal-icon" aria-hidden="true"><svg><use href="#leaf"/></svg></span>
+            <span class="seal-text">
+              <span class="note-label">Note 2 of 4</span>
+              <span class="seal-hint">This one matters</span>
+            </span>
+            <span class="seal-arrow" aria-hidden="true">→</span>
+          </button>
+          <div class="note-body" hidden>
+            <span class="note-label">Note 2 of 4</span>
+            <h3 tabindex="-1">I owe you an apology.</h3>
+            <p>I’m sorry I blocked you. I was feeling hurt and jealous, and instead of handling those feelings maturely, I reacted by blocking you. That wasn’t the right way to deal with things, and I understand why it upset you.</p>
+          </div>
+        </article>
+
+        <!-- Note 3 -->
+        <article class="note" hidden>
+          <button class="note-seal" type="button">
+            <span class="seal-icon" aria-hidden="true"><svg><use href="#leaf"/></svg></span>
+            <span class="seal-text">
+              <span class="note-label">Note 3 of 4</span>
+              <span class="seal-hint">Keep going, almost there</span>
+            </span>
+            <span class="seal-arrow" aria-hidden="true">→</span>
+          </button>
+          <div class="note-body" hidden>
+            <span class="note-label">Note 3 of 4</span>
+            <h3 tabindex="-1">You didn’t deserve that.</h3>
+            <p>My feelings were mine to handle, and I should have communicated better instead of making things uncomfortable. I’m not saying this to justify what I did. I just want to own my mistake and say I’m genuinely sorry.</p>
+          </div>
+        </article>
+
+        <!-- Note 4 -->
+        <article class="note" hidden>
+          <button class="note-seal" type="button">
+            <span class="seal-icon" aria-hidden="true"><svg><use href="#leaf"/></svg></span>
+            <span class="seal-text">
+              <span class="note-label">Note 4 of 4</span>
+              <span class="seal-hint">Last one, I promise</span>
+            </span>
+            <span class="seal-arrow" aria-hidden="true">→</span>
+          </button>
+          <div class="note-body" hidden>
+            <span class="note-label">Note 4 of 4</span>
+            <h3 tabindex="-1">And one last thing 🙂</h3>
+            <p>I hope this little page at least brings a tiny smile to your face. No dramatic background music, no emotional speech — just me admitting I messed up and wishing things can feel a little less awkward someday.</p>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- "Next note" button (shown after each note is opened) -->
+      <div class="next-row" id="nextRow" hidden>
+        <button class="btn" id="nextBtn" type="button">Next note →</button>
+      </div>
+    </section>
+
+    <!-- ============ FINAL SCREEN ============ -->
+    <section class="card final" id="final" aria-labelledby="finalTitle" hidden>
+      <h2 class="title" id="finalTitle" tabindex="-1">That’s all from me, Khushi 🌱</h2>
+
+      <p class="lead">
+        I’m not expecting an instant reply, and you don’t have to meet me or respond because of this page.
+        I respect how you feel and will give you your space. I just wanted to apologize properly.
+        Take care, and I hope things go well for you.
+      </p>
+
+      <div class="final-actions">
+        <button class="btn btn--small" id="smileBtn" type="button">One tiny smile? 🙂</button>
+
+        <div class="smile-result" id="smileResult">
+          <svg class="smiley" id="smiley" viewBox="0 0 64 64" aria-hidden="true" focusable="false" hidden>
+            <circle class="smiley-face" cx="32" cy="32" r="28"/>
+            <circle class="smiley-eye" cx="23" cy="27" r="3"/>
+            <circle class="smiley-eye" cx="41" cy="27" r="3"/>
+            <path class="smiley-mouth" pathLength="1" d="M21 38 Q32 48 43 38"/>
+          </svg>
+          <p class="smile-msg" id="smileMsg" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="replay-row">
+        <button class="btn btn--ghost btn--small" id="replayBtn" type="button">Read the notes again ↺</button>
+      </div>
+    </section>
+
+    <footer class="footer">Made with a little code and a lot of embarrassment 🍃</footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* =======================================================
+         HELPERS
+         ======================================================= */
+      const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      /** True when the visitor hasn't asked for reduced motion. */
+      const motionOK = () => !reduceMotionQuery.matches;
+
+      /** Small delay that collapses to 0ms when reduced motion is on. */
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, motionOK() ? ms : 0));
+
+      /** Re-run a CSS animation by removing and re-adding its class. */
+      function restartAnimation(el, className) {
+        el.classList.remove(className);
+        void el.offsetWidth; // force reflow so the animation restarts
+        el.classList.add(className);
+      }
+
+      /** Scroll an element into view, smoothly unless reduced motion is on. */
+      function scrollToEl(el, block) {
+        el.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: block || "start" });
+      }
+
+      /** Move keyboard / screen-reader focus without making the page jump. */
+      function focusEl(el) {
+        if (!el) return;
+        try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+      }
+
+      /* =======================================================
+         ELEMENTS + STATE
+         ======================================================= */
+      const startBtn     = document.getElementById("startBtn");
+      const notesSection = document.getElementById("notes");
+      const notes        = Array.from(document.querySelectorAll(".note"));
+      const dots         = Array.from(document.querySelectorAll(".dot"));
+      const progressText = document.getElementById("progressText");
+      const nextRow      = document.getElementById("nextRow");
+      const nextBtn      = document.getElementById("nextBtn");
+      const finalSection = document.getElementById("final");
+      const finalTitle   = document.getElementById("finalTitle");
+      const smileBtn     = document.getElementById("smileBtn");
+      const smileResult  = document.getElementById("smileResult");
+      const smiley       = document.getElementById("smiley");
+      const smileMsg     = document.getElementById("smileMsg");
+      const replayBtn    = document.getElementById("replayBtn");
+      const sparkLayer   = document.getElementById("sparkLayer");
+
+      const TOTAL = notes.length;
+      const SMILE_TEXT = "Mission accomplished? Even a 1% smile counts 😄";
+
+      let shownCount = 0;   // how many notes are visible (sealed or open)
+      let openedCount = 0;  // how many notes have been opened
+      let busy = false;     // prevents double-clicks during animations
+
+      /* =======================================================
+         PROGRESS INDICATOR
+         ======================================================= */
+      function updateProgress() {
+        dots.forEach((dot, i) => {
+          dot.classList.toggle("is-done", i < openedCount);
+          dot.classList.toggle("is-current", i === openedCount && i < shownCount);
+        });
+
+        progressText.textContent = openedCount === TOTAL
+          ? `All ${TOTAL} notes opened ✓`
+          : `${openedCount} of ${TOTAL} notes opened`;
+      }
+
+      /* =======================================================
+         NOTES: show a sealed note, then open it
+         ======================================================= */
+      function showNote(index) {
+        const note = notes[index];
+        if (!note) return;
+        note.hidden = false;
+        restartAnimation(note, "reveal");
+        shownCount = Math.max(shownCount, index + 1);
+        updateProgress();
+      }
+
+      async function openNote(index) {
+        // Notes open in order, one at a time
+        if (busy || index !== openedCount) return;
+        busy = true;
+
+        const note = notes[index];
+        const seal = note.querySelector(".note-seal");
+        const body = note.querySelector(".note-body");
+
+        // 1. Fold the sealed card away
+        seal.disabled = true;
+        restartAnimation(seal, "fold-out");
+        await wait(260);
+
+        // 2. Unfold the message
+        seal.hidden = true;
+        body.hidden = false;
+        restartAnimation(body, "unfold");
+
+        openedCount += 1;
+        updateProgress();
+        focusEl(body.querySelector("h3"));
+
+        // 3. Offer the next step
+        nextBtn.textContent = openedCount < TOTAL ? "Next note →" : "Continue →";
+        nextRow.hidden = false;
+        restartAnimation(nextRow, "reveal");
+
+        await wait(150);
+        scrollToEl(nextRow, "nearest");
+        busy = false;
+      }
+
+      notes.forEach((note, i) => {
+        note.querySelector(".note-seal").addEventListener("click", () => openNote(i));
+      });
+
+      /* =======================================================
+         OPENING BUTTON
+         ======================================================= */
+      startBtn.addEventListener("click", async () => {
+        startBtn.hidden = true;
+        notesSection.hidden = false;
+        restartAnimation(notesSection, "reveal");
+        showNote(0);
+
+        await wait(60);
+        scrollToEl(notesSection, "start");
+        focusEl(notes[0].querySelector(".note-seal"));
+      });
+
+      /* =======================================================
+         NEXT NOTE / CONTINUE BUTTON
+         ======================================================= */
+      nextBtn.addEventListener("click", async () => {
+        if (busy) return;
+        busy = true;
+        nextRow.hidden = true;
+
+        if (openedCount < TOTAL) {
+          // Reveal the next sealed note
+          const index = openedCount;
+          showNote(index);
+          await wait(60);
+          scrollToEl(notes[index], "nearest");
+          focusEl(notes[index].querySelector(".note-seal"));
+        } else {
+          // All notes read: show the final card
+          finalSection.hidden = false;
+          restartAnimation(finalSection, "reveal");
+          await wait(60);
+          scrollToEl(finalSection, "start");
+          focusEl(finalTitle);
+        }
+
+        busy = false;
+      });
+
+      /* =======================================================
+         "ONE TINY SMILE?" BUTTON
+         ======================================================= */
+      function burst(origin) {
+        const rect = origin.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const colours = ["#5F6B3E", "#A9B89E", "#C4AE78", "#8FA27E"];
+        const count = 16;
+
+        for (let i = 0; i < count; i++) {
+          const spark = document.createElement("span");
+          const isLeaf = i % 3 === 0;
+          spark.className = isLeaf ? "spark spark--leaf" : "spark";
+          if (!isLeaf) spark.textContent = "✦";
+
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+          const distance = 60 + Math.random() * 70;
+
+          spark.style.left = cx + "px";
+          spark.style.top = cy + "px";
+          spark.style.color = colours[i % colours.length];
+          spark.style.setProperty("--dx", Math.cos(angle) * distance + "px");
+          spark.style.setProperty("--dy", Math.sin(angle) * distance - 20 + "px");
+          spark.style.setProperty("--rot", Math.random() * 240 - 120 + "deg");
+
+          sparkLayer.appendChild(spark);
+          setTimeout(() => spark.remove(), 1100);
+        }
+      }
+
+      smileBtn.addEventListener("click", () => {
+        smiley.hidden = false;
+        smileMsg.textContent = SMILE_TEXT;
+        restartAnimation(smileResult, "is-shown");
+        if (motionOK()) burst(smileBtn);
+      });
+
+      /* =======================================================
+         REPLAY BUTTON – reset everything back to note 1
+         ======================================================= */
+      replayBtn.addEventListener("click", () => {
+        notes.forEach((note) => {
+          const seal = note.querySelector(".note-seal");
+          const body = note.querySelector(".note-body");
+
+          seal.hidden = false;
+          seal.disabled = false;
+          seal.classList.remove("fold-out");
+
+          body.hidden = true;
+          body.classList.remove("unfold");
+
+          note.classList.remove("reveal");
+          note.hidden = true;
+        });
+
+        nextRow.hidden = true;
+        finalSection.hidden = true;
+        smiley.hidden = true;
+        smileMsg.textContent = "";
+        smileResult.classList.remove("is-shown");
+
+        shownCount = 0;
+        openedCount = 0;
+        busy = false;
+        showNote(0);
+
+        scrollToEl(notesSection, "start");
+        focusEl(notes[0].querySelector(".note-seal"));
+      });
+    })();
+  </script>
+</body>
+</html>
